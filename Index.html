@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bonus Shopping — Anime Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Cinzel:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sakura: #ff6b9d;
+      --sakura-light: #ffb3cf;
+      --indigo: #4a1580;
+      --violet: #7c3aed;
+      --violet-light: #a78bfa;
+      --gold: #f59e0b;
+      --dark: #0d0416;
+      --dark2: #160824;
+      --dark3: #1e0f32;
+      --panel: rgba(30,15,50,0.85);
+      --border: rgba(167,139,250,0.25);
+      --text: #f0e6ff;
+      --muted: #9d8bbf;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--dark);
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ===== ANIMATED BG ===== */
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-gradient {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, #2d0a5e 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 90%, #1a0040 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 60% 40%, #0a001a 0%, transparent 70%),
+        #0d0416;
+    }
+
+    /* Stars */
+    .stars {
+      position: absolute;
+      inset: 0;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      animation: twinkle var(--dur, 3s) ease-in-out infinite alternate;
+    }
+    @keyframes twinkle {
+      from { opacity: 0.1; transform: scale(0.8); }
+      to   { opacity: 0.8; transform: scale(1.2); }
+    }
+
+    /* Sakura petals */
+    .petal {
+      position: absolute;
+      top: -40px;
+      font-size: var(--size, 18px);
+      animation: fall var(--dur2, 8s) linear infinite;
+      animation-delay: var(--delay, 0s);
+      filter: drop-shadow(0 0 4px #ff6b9d88);
+      pointer-events: none;
+      user-select: none;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(-40px) rotate(0deg) translateX(0); opacity: 1; }
+      50%  { transform: translateY(50vh) rotate(180deg) translateX(40px); opacity: 0.8; }
+      100% { transform: translateY(105vh) rotate(360deg) translateX(-20px); opacity: 0; }
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: drift var(--dur3, 12s) ease-in-out infinite alternate;
+    }
+    @keyframes drift {
+      from { transform: translate(0, 0); }
+      to   { transform: translate(30px, -40px); }
+    }
+
+    /* Japanese side text */
+    .jp-text {
+      position: fixed;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: rgba(167,139,250,0.18);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* ===== LAYOUT ===== */
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .header-eyebrow {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 11px;
+      letter-spacing: 6px;
+      color: var(--sakura);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      opacity: 0.9;
+    }
+
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #d4b8ff 50%, #ff9ec8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .header-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .header-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .header-line::before,
+    .header-line::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(167,139,250,0.4), transparent);
+    }
+    .header-diamond {
+      width: 8px;
+      height: 8px;
+      background: var(--sakura);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+      box-shadow: 0 0 10px var(--sakura);
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--violet-light), var(--sakura), var(--violet-light), transparent);
+    }
+
+    /* Corner deco */
+    .card-corner {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      pointer-events: none;
+    }
+    .card-corner.tl { top: 0; left: 0; border-top: 2px solid rgba(167,139,250,0.3); border-left: 2px solid rgba(167,139,250,0.3); border-top-left-radius: 20px; }
+    .card-corner.tr { top: 0; right: 0; border-top: 2px solid rgba(255,107,157,0.3); border-right: 2px solid rgba(255,107,157,0.3); border-top-right-radius: 20px; }
+    .card-corner.bl { bottom: 0; left: 0; border-bottom: 2px solid rgba(255,107,157,0.3); border-left: 2px solid rgba(255,107,157,0.3); border-bottom-left-radius: 20px; }
+    .card-corner.br { bottom: 0; right: 0; border-bottom: 2px solid rgba(167,139,250,0.3); border-right: 2px solid rgba(167,139,250,0.3); border-bottom-right-radius: 20px; }
+
+    .section-label {
+      font-size: 10px;
+      font-family: 'Noto Sans JP', sans-serif;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--violet-light);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(124,58,237,0.4), transparent);
+    }
+
+    /* ===== INPUTS ===== */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    label .lbl-icon {
+      font-size: 14px;
+      color: var(--sakura-light);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    input::placeholder { color: rgba(157,139,191,0.4); }
+
+    input:focus {
+      border-color: var(--violet-light);
+      background: rgba(124,58,237,0.08);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.12), 0 0 20px rgba(124,58,237,0.1);
+    }
+
+    input.error {
+      border-color: var(--sakura);
+      background: rgba(255,107,157,0.07);
+      box-shadow: 0 0 0 3px rgba(255,107,157,0.1);
+    }
+
+    .error-msg {
+      font-size: 0.75rem;
+      color: #ff8ab8;
+      margin-top: 6px;
+      display: none;
+      padding-left: 4px;
+    }
+
+    .divider {
+      border: none;
+      margin: 24px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(167,139,250,0.25), transparent);
+    }
+    .divider-icon {
+      font-size: 12px;
+      color: rgba(167,139,250,0.4);
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-row { display: flex; gap: 12px; }
+
+    .btn {
+      flex: 1;
+      padding: 13px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: white;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .btn:active::after { opacity: 0.08; }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 4px 30px rgba(124,58,237,0.6);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      border: 1px solid rgba(167,139,250,0.2);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+    }
+
+    /* ===== RESULT ===== */
+    .result-section {
+      margin-top: 28px;
+      display: none;
+      animation: slideIn 0.4s ease;
+    }
+    .result-section.show { display: block; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(167,139,250,0.1);
+    }
+    .result-row:last-child { border-bottom: none; }
+
+    .result-key {
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .result-key .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--violet-light);
+      flex-shrink: 0;
+    }
+
+    .result-val {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: right;
+    }
+
+    .result-total {
+      margin-top: 16px;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(236,72,153,0.15));
+      border: 1px solid rgba(167,139,250,0.3);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .result-total .label {
+      font-size: 0.8rem;
+      color: var(--violet-light);
+      letter-spacing: 0.5px;
+    }
+    .result-total .amount {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      background: linear-gradient(90deg, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-yes {
+      background: rgba(74,222,128,0.12);
+      color: #4ade80;
+      border: 1px solid rgba(74,222,128,0.3);
+    }
+    .badge-no {
+      background: rgba(167,139,250,0.1);
+      color: var(--muted);
+      border: 1px solid rgba(167,139,250,0.2);
+    }
+
+    /* Sparkle animation on result */
+    .sparkle {
+      position: absolute;
+      pointer-events: none;
+      animation: sparkleAnim 0.7s ease forwards;
+    }
+    @keyframes sparkleAnim {
+      0%   { opacity: 1; transform: scale(0) rotate(0deg); }
+      50%  { opacity: 1; transform: scale(1.5) rotate(180deg); }
+      100% { opacity: 0; transform: scale(0.5) rotate(360deg) translateY(-30px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- BG Scene -->
+<div class="bg-scene">
+  <div class="bg-gradient"></div>
+
+  <!-- Stars -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Orbs -->
+  <div class="orb" style="width:300px;height:300px;background:rgba(124,58,237,0.12);top:-100px;left:-100px;--dur3:14s;"></div>
+  <div class="orb" style="width:250px;height:250px;background:rgba(255,107,157,0.08);bottom:-80px;right:-80px;--dur3:11s;"></div>
+  <div class="orb" style="width:180px;height:180px;background:rgba(167,139,250,0.07);top:40%;left:60%;--dur3:16s;"></div>
+
+  <!-- Sakura petals -->
+  <div id="petals"></div>
+</div>
+
+<!-- JP side text -->
+<div class="jp-text" style="right:16px;top:15%;">ショッピング計算機　ボーナス特典</div>
+<div class="jp-text" style="left:16px;top:30%;">割引　合計金額　購入者名</div>
+
+<div class="page">
+  <div class="header">
+    <p class="header-eyebrow">✦ @ehsannn_Store ✦</p>
+    <h1>Perhitungan Bonus</h1>
+    <p class="header-sub">Happy Shopping!</p>
+    <div class="header-line"><div class="header-diamond"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-corner tl"></div>
+    <div class="card-corner tr"></div>
+    <div class="card-corner bl"></div>
+    <div class="card-corner br"></div>
+
+    <p class="section-label">▸ Data Pembelian</p>
+
+    <div class="form-group">
+      <label><span class="lbl-icon">♦</span> Nama Pelanggan</label>
+      <input type="text" id="namaPelanggan" placeholder="Masukkan nama pelanggan"/>
+      <div class="error-msg" id="errNama">✦ Nama pelanggan wajib diisi</div>
+    </div>
+
+    <div class="form-group">
+      <label><span class="lbl-icon">♦</span> Nama Produk</label>
+      <input type="text" id="namaProduk" placeholder="Masukkan nama produk"/>
+      <div class="error-msg" id="errProduk">✦ Nama produk wajib diisi</div>
+    </div>
+
+    <div class="form-group">
+      <label><span class="lbl-icon">◈</span> Harga Produk (Rp)</label>
+      <input type="number" id="hargaProduk" placeholder="Contoh: 150000" min="0"/>
+      <div class="error-msg" id="errHarga">✦ Harga harus diisi dengan angka yang valid</div>
+    </div>
+
+    <div class="form-group">
+      <label><span class="lbl-icon">◈</span> Jumlah Pembelian</label>
+      <input type="number" id="jumlahPembelian" placeholder="Contoh: 3" min="1"/>
+      <div class="error-msg" id="errJumlah">✦ Jumlah harus diisi dengan angka yang valid</div>
+    </div>
+
+    <div class="divider"><span class="divider-icon">✦</span></div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnHitung" onclick="hitung()">⚡ Hitung Sekarang</button>
+      <button class="btn btn-secondary" onclick="reset()">↺ Reset</button>
+    </div>
+
+    <!-- HASIL -->
+    <div class="result-section" id="hasilSection">
+      <div class="divider"><span class="divider-icon">◈</span></div>
+      <p class="section-label">▸ Hasil Perhitungan</p>
+
+      <div class="result-row">
+        <span class="result-key"><span class="dot"></span>Nama Pelanggan</span>
+        <span class="result-val" id="rNama">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key"><span class="dot"></span>Nama Produk</span>
+        <span class="result-val" id="rProduk">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key"><span class="dot"></span>Total Belanja</span>
+        <span class="result-val" id="rTotalBelanja">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key"><span class="dot" style="background:var(--sakura)"></span>Bonus / Potongan</span>
+        <span class="result-val" id="rBonus">—</span>
+      </div>
+
+      <div class="result-total" id="resultTotal">
+        <div>
+          <div class="label">✦ Total Bayar</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;" id="rBonusNote">—</div>
+        </div>
+        <div class="amount" id="rTotalBayar">—</div>
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align:center;font-size:0.72rem;color:rgba(157,139,191,0.35);margin-top:24px;letter-spacing:2px;">
+    ✦ BONUS ≥ Rp400.000 → Diskon 10% ✦
+  </p>
+</div>
+
+<script>
+  // Generate stars
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${sz}px;height:${sz}px;
+      top:${Math.random()*100}%;left:${Math.random()*100}%;
+      --dur:${2+Math.random()*4}s;
+      animation-delay:${Math.random()*4}s;
+      opacity:${Math.random()*0.5+0.1};
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // Generate petals
+  const petalsEl = document.getElementById('petals');
+  const petalChars = ['✿','❀','✾','❁','🌸'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = petalChars[Math.floor(Math.random()*petalChars.length)];
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      --size:${12+Math.random()*16}px;
+      --dur2:${6+Math.random()*10}s;
+      --delay:${Math.random()*8}s;
+    `;
+    petalsEl.appendChild(p);
+  }
+
+  function formatRp(n) {
+    return 'Rp\u202F' + Math.round(n).toLocaleString('id-ID');
+  }
+
+  function setError(inputId, errId, show) {
+    const inp = document.getElementById(inputId);
+    const err = document.getElementById(errId);
+    inp.classList.toggle('error', show);
+    err.style.display = show ? 'block' : 'none';
+  }
+
+  function hitung() {
+    const nama   = document.getElementById('namaPelanggan').value.trim();
+    const produk = document.getElementById('namaProduk').value.trim();
+    const harga  = document.getElementById('hargaProduk').value.trim();
+    const jml    = document.getElementById('jumlahPembelian').value.trim();
+
+    let valid = true;
+    setError('namaPelanggan','errNama', !nama);    if (!nama) valid = false;
+    setError('namaProduk','errProduk', !produk);   if (!produk) valid = false;
+
+    const h = parseFloat(harga);
+    const hInv = !harga || isNaN(h) || h < 0;
+    setError('hargaProduk','errHarga', hInv);
+    if (hInv) valid = false;
+
+    const j = parseInt(jml);
+    const jInv = !jml || isNaN(j) || j < 1;
+    setError('jumlahPembelian','errJumlah', jInv);
+    if (jInv) valid = false;
+
+    if (!valid) return;
+
+    const totalBelanja = h * j;
+    let potongan = 0;
+    let bonusHTML = '';
+    let noteText = '';
+
+    if (totalBelanja >= 400000) {
+      potongan = totalBelanja * 0.1;
+      bonusHTML = `<span class="badge badge-yes">✦ Diskon 10% — ${formatRp(potongan)}</span>`;
+      noteText = '✨ Selamat! Kamu mendapat bonus diskon 10%';
+    } else {
+      bonusHTML = `<span class="badge badge-no">Tidak dapat potongan</span>`;
+      noteText = `Belanja Rp${(400000-totalBelanja).toLocaleString('id-ID')} lagi untuk dapat diskon`;
+    }
+
+    const totalBayar = totalBelanja - potongan;
+
+    document.getElementById('rNama').textContent = nama;
+    document.getElementById('rProduk').textContent = produk;
+    document.getElementById('rTotalBelanja').textContent = formatRp(totalBelanja);
+    document.getElementById('rBonus').innerHTML = bonusHTML;
+    document.getElementById('rTotalBayar').textContent = formatRp(totalBayar);
+    document.getElementById('rBonusNote').textContent = noteText;
+
+    const sec = document.getElementById('hasilSection');
+    sec.classList.remove('show');
+    void sec.offsetWidth;
+    sec.classList.add('show');
+
+    // Sparkle effect on button
+    const btn = document.getElementById('btnHitung');
+    const rect = btn.getBoundingClientRect();
+    ['✦','✿','★','◈'].forEach((ch, i) => {
+      const sp = document.createElement('div');
+      sp.className = 'sparkle';
+      sp.textContent = ch;
+      sp.style.cssText = `
+        left:${rect.left+rect.width/2+(-30+i*20)}px;
+        top:${rect.top+scrollY}px;
+        font-size:${14+i*4}px;
+        color:${['#a78bfa','#f472b6','#fcd34d','#67e8f9'][i]};
+        position:absolute;
+        z-index:9999;
+      `;
+      document.body.appendChild(sp);
+      setTimeout(() => sp.remove(), 800);
+    });
+  }
+
+  function reset() {
+    ['namaPelanggan','namaProduk','hargaProduk','jumlahPembelian'].forEach(id => {
+      document.getElementById(id).value = '';
+      document.getElementById(id).classList.remove('error');
+    });
+    ['errNama','errProduk','errHarga','errJumlah'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    document.getElementById('hasilSection').classList.remove('show');
+  }
+</script>
+</body>
+</html>
